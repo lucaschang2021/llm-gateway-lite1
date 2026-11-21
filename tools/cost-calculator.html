@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLM API Cost Calculator — free tool by LLM Gateway Lite</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 880px; margin: 2rem auto; padding: 0 1rem; background: #0d1b2a; color: #e8f1f8; }
+  h1 { font-size: 1.5rem; } .sub { color: #9db8cc; }
+  label { display: block; margin: .7rem 0 .2rem; color: #c9dcea; }
+  input { width: 220px; padding: .45rem; border-radius: 6px; border: 1px solid #33506b; background: #12283d; color: #fff; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1.2rem; }
+  th, td { border-bottom: 1px solid #27435c; padding: .45rem .6rem; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  .best { color: #4ade80; font-weight: 600; }
+  .foot { margin-top: 2rem; padding: 1rem; border: 1px solid #38bdf8; border-radius: 10px; }
+  a { color: #38bdf8; }
+</style>
+</head>
+<body>
+<h1>LLM API Cost Calculator</h1>
+<p class="sub">Free tool — model any workload and compare models side by side. Prices are a Nov 2026 snapshot, edit them in the table if yours differ. Nothing you type leaves your browser.</p>
+
+<label>Requests per day <input id="rpd" type="number" value="5000" min="0"></label>
+<label>Average input tokens / request <input id="tin" type="number" value="800" min="0"></label>
+<label>Average output tokens / request <input id="tout" type="number" value="300" min="0"></label>
+
+<table id="tbl">
+<thead><tr><th>Model</th><th>Input $/1M</th><th>Output $/1M</th><th>$/request</th><th>$/day</th><th>$/30 days</th><th>$/year</th></tr></thead>
+<tbody></tbody>
+</table>
+
+<div class="foot">
+  <strong>Next step:</strong> this calculator tells you what you <em>should</em> spend.
+  The <a href="https://github.com/lucaschang2021/llm-gateway-lite1">free LLM Gateway Lite</a> logs what you <em>actually</em> spend, per request —
+  and the full Starter Kit adds per-client keys, daily budget caps and rate limits so the number can't run away from you.
+</div>
+
+<script>
+const MODELS = [
+  ["gpt-4o", 2.50, 10.00], ["gpt-4o-mini", 0.15, 0.60], ["gpt-4.1", 2.00, 8.00],
+  ["gpt-4.1-mini", 0.40, 1.60], ["claude-sonnet", 3.00, 15.00], ["claude-haiku", 0.80, 4.00],
+  ["gemini-flash", 0.30, 2.50], ["gemini-pro", 1.25, 10.00], ["deepseek-chat", 0.27, 1.10]
+];
+const $ = id => document.getElementById(id);
+const money = x => "$" + x.toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+function render() {
+  const rpd = +$("rpd").value || 0, tin = +$("tin").value || 0, tout = +$("tout").value || 0;
+  const rows = MODELS.map(([name, ip, op]) => {
+    const per = (tin * ip + tout * op) / 1e6, day = per * rpd;
+    return {name, ip, op, per, day, m: day * 30, y: day * 365};
+  }).sort((a, b) => a.day - b.day);
+  document.querySelector("#tbl tbody").innerHTML = rows.map((r, i) =>
+    `<tr${i === 0 ? ' class="best"' : ''}><td>${r.name}${i === 0 ? " — cheapest" : ""}</td><td>${r.ip.toFixed(2)}</td><td>${r.op.toFixed(2)}</td><td>${money(r.per)}</td><td>${money(r.day)}</td><td>${money(r.m)}</td><td>${money(r.y)}</td></tr>`).join("");
+}
+["rpd", "tin", "tout"].forEach(id => $(id).addEventListener("input", render));
+render();
+</script>
+</body>
+</html>
