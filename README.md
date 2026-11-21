@@ -20,6 +20,12 @@ give your apps the *gateway* key, and get a cost log of every request.
 DEMO PASSED — the gateway proxied, authenticated and logged real requests.
 ```
 
+## Free tool: what will your workload cost?
+Open [`tools/cost-calculator.html`](tools/cost-calculator.html) in a browser —
+a single-file interactive calculator comparing 9 models on your real
+request volume. (This calculator shows what you *should* spend; the gateway
+below logs what you *actually* spend.)
+
 ## Try it in 60 seconds (no API key needed)
 ```bash
 python3 demo.py
